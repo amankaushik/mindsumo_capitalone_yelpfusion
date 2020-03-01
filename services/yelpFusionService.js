@@ -5,12 +5,12 @@ axios.defaults.xsrfCookieName = 'csrftoken';
 
 const axiosClient = axios.create(
     {
-        baseURL: process.env.VUE_APP_API_BASE,
+        baseURL: process.env.VUE_APP_YELP_API_BASE,
         withCredentials: false,
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.VUE_APP_API_KEY}`
+            'Authorization': `Bearer ${process.env.VUE_APP_YELP_API_KEY}`
         }
     }
 )

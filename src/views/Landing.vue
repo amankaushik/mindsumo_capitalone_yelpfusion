@@ -22,25 +22,26 @@
                 </v-btn>
             </v-form>
         </v-card>
-        <v-card v-else>
-            No Error
-        </v-card>
+        <BusinessList v-else :business-list=responseData></BusinessList>
     </v-container>
 </template>
 
 <script>
     import {mapActions, mapGetters} from "vuex";
     import yelpFusionService from "../../services/yelpFusionService";
+    import BusinessList from "@/components/BusinessList";
 
     export default {
         name: "Landing",
+        components: {BusinessList},
         data: function () {
             return {
                 gettingLocation: true,
                 locationError: false,
                 progressMessage: "Getting Location",
                 locationErrorString: "",
-                formText: ""
+                formText: "",
+                response: null
             }
         },
         methods: {
@@ -58,14 +59,14 @@
                     });
                 }
                 let location = this.getLocation;
+                let parentThis = this;
                 yelpFusionService.getBusinessMatches(location, this.getLocatedByString).then(
                     response => {
-                        console.log(response);
+                        parentThis.response = response.data;
                     }).catch(
                     error => {
                         console.log(error)
                     }).finally(function () {
-
                 });
             },
         },
@@ -73,18 +74,18 @@
             ...
                 mapGetters('centralStore', ['getIsLocated', 'getLocation', 'getLocatedByString']),
             hasInput:
-
                 function () {
                     return this.locationErrorString.length > 0;
-                }
+                },
+            responseData: function () {
+                return this.response;
+            }
         }
         ,
         mounted: function () {
             navigator.geolocation.getCurrentPosition(
                 response => {
                     this.gettingLocation = false;
-                    console.log(response.coords.latitude);
-                    console.log(response.coords.longitude);
                     // set location state
                     this.setIsLocated(true);
                     this.setLocatedByString(false);
