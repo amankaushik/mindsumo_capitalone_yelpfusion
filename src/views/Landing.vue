@@ -22,7 +22,7 @@
                 </v-btn>
             </v-form>
         </v-card>
-        <BusinessList v-else :business-list=responseData></BusinessList>
+        <BusinessList v-else :business-object=responseData></BusinessList>
     </v-container>
 </template>
 
