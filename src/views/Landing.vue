@@ -10,6 +10,7 @@
                 {{progressMessage}}
             </v-progress-circular>
         </v-card>
+        <ExploreBusiness v-else :business-object=responseData></ExploreBusiness>
         <v-card v-if="locationError">
             <v-alert type="error">
                 Unable to get position because {{locationErrorString}}
@@ -22,18 +23,18 @@
                 </v-btn>
             </v-form>
         </v-card>
-        <BusinessList v-else :business-object=responseData></BusinessList>
     </v-container>
 </template>
 
 <script>
     import {mapActions, mapGetters} from "vuex";
     import yelpFusionService from "../../services/yelpFusionService";
-    import BusinessList from "@/components/BusinessList";
+    //import BusinessList from "@/components/BusinessList";
+    import ExploreBusiness from "@/components/ExploreBusiness"
 
     export default {
         name: "Landing",
-        components: {BusinessList},
+        components: {ExploreBusiness},
         data: function () {
             return {
                 gettingLocation: true,
@@ -80,9 +81,8 @@
             responseData: function () {
                 return this.response;
             }
-        }
-        ,
-        mounted: function () {
+        },
+        created: function () {
             navigator.geolocation.getCurrentPosition(
                 response => {
                     this.gettingLocation = false;
