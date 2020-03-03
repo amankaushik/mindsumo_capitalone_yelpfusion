@@ -143,8 +143,8 @@
             isListViewVisible: false,
             isParallelViewVisible: false,
             bottomNavigation: {
-                mapView: {span: 'Map View', icon: 'mdi-map', active: true},
-                listView: {span: 'List View', icon: 'mdi-view-list', active: false},
+                listView: {span: 'List View', icon: 'mdi-view-list', active: true},
+                mapView: {span: 'Map View', icon: 'mdi-map', active: false},
             }
         }),
         computed: {
@@ -153,7 +153,6 @@
                 for (let key in this.businessObject) {
                     if (key === "businesses") {
                         for (let business of this.businessObject[key]) {
-                            console.log(business)
                             business.price = this.currencySymbolToNum(business.price);
                         }
                     }
