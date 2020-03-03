@@ -20,10 +20,13 @@ export default {
     getBusinessMatches(location, isLocatedByString) {
         // user entered location
         if (isLocatedByString) {
-            return axiosClient.get(`/businesses/search?location=${location["locationString"]}`)
+            return axiosClient.get(`${process.env.VUE_APP_YELP_API_BASE}${process.env.VUE_APP_YELP_API_SEARCH}?location=${location["locationString"]}`)
         } else {
-            return axiosClient.get(`/businesses/search?latitude=${location["latitude"]}&longitude=${location["longitude"]}`)
+            return axiosClient.get(`${process.env.VUE_APP_YELP_API_BASE}${process.env.VUE_APP_YELP_API_SEARCH}?latitude=${location["latitude"]}&longitude=${location["longitude"]}`)
         }
+    },
+    getBusinessDetails(id) {
+        return axiosClient.get(`${process.env.VUE_APP_YELP_API_BASE}${process.env.VUE_APP_YELP_API_DETAILS}/${id}`);
     }
 }
 

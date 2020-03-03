@@ -10,8 +10,7 @@
                 {{progressMessage}}
             </v-progress-circular>
         </v-card>
-        <ExploreBusiness v-else :business-object=responseData></ExploreBusiness>
-        <v-card v-if="locationError">
+        <v-card v-else-if="locationError">
             <v-alert type="error">
                 Unable to get position because {{locationErrorString}}
             </v-alert>
@@ -23,6 +22,7 @@
                 </v-btn>
             </v-form>
         </v-card>
+        <ExploreBusiness v-else :business-object=responseData></ExploreBusiness>
     </v-container>
 </template>
 
@@ -49,6 +49,8 @@
             getBusinesses: function () {
                 // location entered by user
                 if (this.getLocatedByString) {
+                    this.gettingLocation = false;
+                    this.locationError = false;
                     // set location state
                     this.setIsLocated(true);
                     this.setLocatedByString(true);
@@ -80,35 +82,37 @@
                 },
             responseData: function () {
                 return this.response;
-            }
+            },
         },
-        created: function () {
-            navigator.geolocation.getCurrentPosition(
-                response => {
-                    this.gettingLocation = false;
-                    // set location state
-                    this.setIsLocated(true);
-                    this.setLocatedByString(false);
-                    this.setLocation({
-                        latitude: response.coords.latitude,
-                        longitude: response.coords.longitude,
-                        locationString: null
+        beforeCreate: function () {
+            if (!this.getIsLocated) {
+                navigator.geolocation.getCurrentPosition(
+                    response => {
+                        this.gettingLocation = false;
+                        // set location state
+                        this.setIsLocated(true);
+                        this.setLocatedByString(false);
+                        this.setLocation({
+                            latitude: response.coords.latitude,
+                            longitude: response.coords.longitude,
+                            locationString: null
+                        });
+                        this.getBusinesses();
+                    },
+                    error => {
+                        this.gettingLocation = false;
+                        this.locationError = true;
+                        if (error.PERMISSION_DENIED) {
+                            this.locationErrorString = "Permission Denied";
+                        } else if (error.TIMEOUT) {
+                            this.locationErrorString = "Timeout";
+                        } else if (error.POSITION_UNAVAILABLE) {
+                            this.locationErrorString = "Position Unavailable";
+                        } else {
+                            this.locationErrorString = "Undefined Error";
+                        }
                     });
-                    this.getBusinesses();
-                },
-                error => {
-                    this.gettingLocation = false;
-                    this.locationError = true;
-                    if (error.PERMISSION_DENIED) {
-                        this.locationErrorString = "Permission Denied";
-                    } else if (error.TIMEOUT) {
-                        this.locationErrorString = "Timeout";
-                    } else if (error.POSITION_UNAVAILABLE) {
-                        this.locationErrorString = "Position Unavailable";
-                    } else {
-                        this.locationErrorString = "Undefined Error";
-                    }
-                });
+            }
         }
     }
 </script>

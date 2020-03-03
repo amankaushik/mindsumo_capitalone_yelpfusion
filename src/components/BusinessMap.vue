@@ -23,7 +23,8 @@
                         "phone": singlePoint.phone,
                         "storeid": singlePoint.id,
                         "image": singlePoint["image_url"],
-                        "address": singlePoint["location"]["address1"]
+                        "address": singlePoint["location"]["address1"] + singlePoint["location"]["city"] +
+                            singlePoint["location"]["zip_code"]
                     }
                 };
             },
@@ -62,7 +63,7 @@
             loader.load().then(function (google) {
                     const miniMap = new google.maps.Map(document.getElementById('businessMapMiniMap'), {
                         center: {lat: center.latitude, lng: center.longitude},
-                        zoom: 15,
+                        zoom: 12,
                     });
                     miniMap.data.addGeoJson(parentThis.getGeoJSONData(), {idPropertyName: 'storeid'})
                     miniMap.data.setStyle((feature) => {

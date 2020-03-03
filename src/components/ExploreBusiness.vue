@@ -18,14 +18,11 @@
                                         <v-card dark color="#385F73">
                                             <div class="d-flex flex-no-wrap justify-space-between">
                                                 <div>
-                                                    <v-card-title
-                                                            class="headline"
-                                                            v-text="business.name"
-                                                    ></v-card-title>
+                                                    <v-card-title class="headline" v-text="business.name">
+                                                    </v-card-title>
                                                     <div class="v-card__subtitle">
                                                         <v-chip-group>
-                                                            <v-chip small
-                                                                    v-for="(item, j) in business.categories"
+                                                            <v-chip small v-for="(item, j) in business.categories"
                                                                     :key="j">
                                                                 <v-avatar left>
                                                                     <v-icon small>mdi-silverware-fork-knife
@@ -36,11 +33,7 @@
                                                         </v-chip-group>
                                                     </div>
                                                 </div>
-                                                <v-avatar
-                                                        class="profile"
-                                                        size="164"
-                                                        tile
-                                                >
+                                                <v-avatar class="profile" size="164" tile>
                                                     <v-img :src="business.image_url"></v-img>
                                                 </v-avatar>
                                             </div>
@@ -48,7 +41,8 @@
                                             <v-card-actions>
                                                 <v-btn :href="business.url" target="_blank">View on Yelp</v-btn>
                                                 <v-spacer></v-spacer>
-                                                <v-btn :href="business.url">Explore</v-btn>
+                                                <v-btn v-bind:to="{name: 'explore', params: {bid: business.id}}">Explore
+                                                </v-btn>
                                             </v-card-actions>
                                             <v-expansion-panels>
                                                 <v-expansion-panel>
@@ -145,7 +139,8 @@
             bottomNavigation: {
                 listView: {span: 'List View', icon: 'mdi-view-list', active: true},
                 mapView: {span: 'Map View', icon: 'mdi-map', active: false},
-            }
+            },
+            dialog: false
         }),
         computed: {
             processedBusinessObject: function () {
