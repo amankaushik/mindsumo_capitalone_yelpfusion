@@ -29,7 +29,6 @@
 <script>
     import {mapActions, mapGetters} from "vuex";
     import yelpFusionService from "../../services/yelpFusionService";
-    //import BusinessList from "@/components/BusinessList";
     import ExploreBusiness from "@/components/ExploreBusiness"
 
     export default {
@@ -70,6 +69,7 @@
                     }).finally(function () {
                 });
             },
+
         },
         computed: {
             ...

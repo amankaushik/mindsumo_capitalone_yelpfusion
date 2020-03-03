@@ -1,15 +1,134 @@
 <template>
-    <v-container class="grey lighten-5">
-        <v-card class="mx-auto" id="miniMap">
-        </v-card>
+    <v-container>
+        <v-sheet max-height="800" class="overflow-y-auto" id="scroll-sheet">
+            <v-container fluid>
+                <v-row v-if="bottomNavigation['mapView']['active']">
+                    <BusinessMap :business-object="processedBusinessObject"></BusinessMap>
+                </v-row>
+                <v-row v-if="bottomNavigation['listView']['active']">
+                    <v-card max-width="800" id="listView" class="mx-auto">
+                        <v-data-iterator :items="processedBusinessObject.businesses"
+                                         :page.sync="currentPage"
+                                         :items-per-page="itemsPerPage"
+                                         hide-default-footer
+                                         @page-count="pageCount = $event">
+                            <template v-slot:default="props">
+                                <v-row dense>
+                                    <v-col cols="12" v-for="(business, i) in props.items" :key="i">
+                                        <v-card dark color="#385F73">
+                                            <div class="d-flex flex-no-wrap justify-space-between">
+                                                <div>
+                                                    <v-card-title
+                                                            class="headline"
+                                                            v-text="business.name"
+                                                    ></v-card-title>
+                                                    <div class="v-card__subtitle">
+                                                        <v-chip-group>
+                                                            <v-chip small
+                                                                    v-for="(item, j) in business.categories"
+                                                                    :key="j">
+                                                                <v-avatar left>
+                                                                    <v-icon small>mdi-silverware-fork-knife
+                                                                    </v-icon>
+                                                                </v-avatar>
+                                                                {{item.title}}
+                                                            </v-chip>
+                                                        </v-chip-group>
+                                                    </div>
+                                                </div>
+                                                <v-avatar
+                                                        class="profile"
+                                                        size="164"
+                                                        tile
+                                                >
+                                                    <v-img :src="business.image_url"></v-img>
+                                                </v-avatar>
+                                            </div>
+                                            <v-divider dark></v-divider>
+                                            <v-card-actions>
+                                                <v-btn :href="business.url" target="_blank">View on Yelp</v-btn>
+                                                <v-spacer></v-spacer>
+                                                <v-btn :href="business.url">Explore</v-btn>
+                                            </v-card-actions>
+                                            <v-expansion-panels>
+                                                <v-expansion-panel>
+                                                    <v-expansion-panel-header>Details</v-expansion-panel-header>
+                                                    <v-expansion-panel-content>
+                                                        <v-card-actions>
+                                                            <v-icon large>mdi-seal</v-icon>
+                                                            {{business.rating}}
+                                                            <v-rating
+                                                                    v-model="business.rating"
+                                                                    background-color="white"
+                                                                    dense
+                                                                    readonly
+                                                                    half-increments
+                                                                    size="18"
+                                                            ></v-rating>
+                                                            <v-spacer></v-spacer>
+                                                            <v-icon large>mdi-cash-usd</v-icon>
+                                                            <v-rating
+                                                                    v-model="business.price"
+                                                                    background-color="white"
+                                                                    dense
+                                                                    readonly
+                                                                    size="18"
+                                                                    full-icon="mdi-currency-usd"
+                                                                    empty-icon="mdi-currency-usd-off"
+                                                            ></v-rating>
+                                                        </v-card-actions>
+                                                        <v-divider></v-divider>
+                                                        <v-card-actions>
+                                                            <v-chip-group>
+                                                                <v-chip small>
+                                                                    <v-avatar left>
+                                                                        <v-icon small>mdi-map-marker</v-icon>
+                                                                    </v-avatar>
+                                                                    {{business.location.address1}}
+                                                                </v-chip>
+                                                                <v-chip small
+                                                                        v-for="(service, k) in business.transactions"
+                                                                        :key="k">
+                                                                    <v-avatar left>
+                                                                        <v-icon small>mdi-face-agent</v-icon>
+                                                                    </v-avatar>
+                                                                    {{service}}
+                                                                </v-chip>
+                                                            </v-chip-group>
+                                                        </v-card-actions>
+                                                    </v-expansion-panel-content>
+                                                </v-expansion-panel>
+                                            </v-expansion-panels>
+                                        </v-card>
+                                    </v-col>
+                                </v-row>
+                            </template>
+                        </v-data-iterator>
+                        <v-card-actions>
+                            <v-row>
+                                <v-pagination v-model="currentPage" :length="pageCount"></v-pagination>
+                            </v-row>
+                        </v-card-actions>
+                    </v-card>
+                </v-row>
+            </v-container>
+        </v-sheet>
+        <v-bottom-navigation color="purple lighten-1" @change="updateVisible" absolute>
+            <v-btn v-for="(button, i) of bottomNavigation" :key="i" :value="button">
+                <span>{{button.span}}</span>
+                <v-icon>{{button.icon}}</v-icon>
+            </v-btn>
+        </v-bottom-navigation>
     </v-container>
 </template>
 
 <script>
-    import {Loader} from 'google-maps';
+
+    import BusinessMap from "@/components/BusinessMap";
 
     export default {
         name: "ExploreBusiness",
+        components: {BusinessMap},
         props: {businessObject: Object},
         data: () => ({
             show: false,
@@ -17,77 +136,43 @@
             itemsPerPage: 4,
             currentPage: 1,
             pageCount: 0,
-            miniMapDialog: false,
-            loader: new Loader(process.env.VUE_APP_GMAP_API_KEY, {}),
+            mapView: "mapView",
+            listView: "listView",
+            parallelView: "parallelView",
+            isMapViewVisible: true,
+            isListViewVisible: false,
+            isParallelViewVisible: false,
+            bottomNavigation: {
+                mapView: {span: 'Map View', icon: 'mdi-map', active: true},
+                listView: {span: 'List View', icon: 'mdi-view-list', active: false},
+            }
         }),
+        computed: {
+            processedBusinessObject: function () {
+                let processed = {};
+                for (let key in this.businessObject) {
+                    if (key === "businesses") {
+                        for (let business of this.businessObject[key]) {
+                            console.log(business)
+                            business.price = this.currencySymbolToNum(business.price);
+                        }
+                    }
+                    processed[key] = this.businessObject[key];
+                }
+                return processed;
+            }
+        },
         methods: {
             currencySymbolToNum: function (currency) {
-                return currency.length;
+                return currency.length * 1.0;
             },
-            getSinglePointGeoJSONData: function (singlePoint) {
-                return {
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": [singlePoint.coordinates["longitude"], singlePoint.coordinates["latitude"]]
-                    },
-                    "type": "Feature",
-                    "properties": {
-                        "description": singlePoint.alias,
-                        "name": singlePoint.name,
-                        "phone": singlePoint.phone,
-                        "storeid": singlePoint.id,
-                        "image": singlePoint["image_url"]
-                    }
-                };
-            },
-            getGeoJSONData: function () {
-                let data = {
-                    "type": "FeatureCollection",
-                    "features": []
-                };
-                for (const business of this.businessObject["businesses"]) {
-                    data["features"].push(this.getSinglePointGeoJSONData(business));
+            updateVisible: function (view) {
+                // reset visible
+                for (let button in this.bottomNavigation) {
+                    this.bottomNavigation[button]['active'] = false;
                 }
-                console.log(data);
-                return data;
+                view.active = true;
             },
         },
-        created: async function () {
-            console.log('Created Hook Called');
-            console.log(this.businessObject);
-            const google = await this.loader.load();
-            let parentThis = this;
-            let center = this.businessObject['region']['center'];
-            const miniMap = new google.maps.Map(document.getElementById('miniMap'), {
-                center: {lat: center.latitude, lng: center.longitude},
-                zoom: 14,
-            });
-            miniMap.data.addGeoJson(parentThis.getGeoJSONData(), {idPropertyName: 'storeid'})
-            miniMap.data.setStyle((feature) => {
-                return {
-                    icon: {
-                        url: `${feature.getProperty('image')}`,
-                        scaledSize: new google.maps.Size(32, 32)
-                    }
-                };
-            });
-            // eslint-disable-next-line no-unused-vars
-        },
-        updated() {
-            console.log('Updated Hook Called');
-            console.log(this.businessObject)
-        },
-        beforeUpdate() {
-            console.log('beforeUpdate Hook Called');
-            console.log(this.businessObject)
-        }
     }
 </script>
-
-<style scoped>
-    #miniMap {
-        width: 100%;
-        height: 600px;
-        background-color: grey;
-    }
-</style>
